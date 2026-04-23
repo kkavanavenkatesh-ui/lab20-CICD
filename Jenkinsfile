@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/hakshianu-dotcom/maven12.git'
+                git https://github.com/kkavanavenkatesh-ui/lab20-CICD.git
             }
         }
 
@@ -22,7 +22,7 @@ pipeline {
 
     post {
         always {
-            junit '**/target/surefire-reports/*.xml'
+           junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
         }
     }
 }
