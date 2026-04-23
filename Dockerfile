@@ -1,14 +1,14 @@
-# Use Tomcat 9 with Java 17
-FROM tomcat:9.0-jdk17-openjdk-slim
+# Use OpenJDK instead of Tomcat since you have a .jar file
+FROM openjdk:17-jdk-slim
 
-# Clean up default Tomcat apps
-RUN rm -rf /usr/local/tomcat/webapps/*
+# Create a working directory
+WORKDIR /app
 
-# IMPORTANT: This must match the name 'app.binary' from your Jenkinsfile
-COPY app.binary /usr/local/tomcat/webapps/ROOT.war
+# Copy the binary created by Jenkins
+COPY app.binary app.jar
 
-# Port inside the container
+# Expose port 8080 (most Spring Boot/Java apps use this by default)
 EXPOSE 8080
 
-# Start Tomcat
-CMD ["catalina.sh", "run"]
+# Run the jar file directly
+ENTRYPOINT ["java", "-jar", "app.jar"]
