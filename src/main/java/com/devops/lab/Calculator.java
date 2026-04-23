@@ -1,6 +1,9 @@
 package com.devops.lab;
+
 public class Calculator {
-public int multiply(int a, int b) {
-return a * b;
-}
-}
+    // Methods should be INSIDE these braces
+    public int add(int a, int b) {
+        return a + b;
+    }
+} 
+// Nothing should be out here!
