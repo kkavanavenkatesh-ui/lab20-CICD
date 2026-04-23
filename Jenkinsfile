@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git https://github.com/kkavanavenkatesh-ui/lab20-CICD.git
+                git "https://github.com/kkavanavenkatesh-ui/lab20-CICD.git"
             }
         }
 
