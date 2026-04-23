@@ -1,11 +1,14 @@
+# Use Tomcat 9 with Java 17
 FROM tomcat:9.0-jdk17-openjdk-slim
 
-# Remove default apps
+# Clean up default Tomcat apps
 RUN rm -rf /usr/local/tomcat/webapps/*
 
-# COPY app.war (which we created in the Jenkins step) to Tomcat's webapps
-COPY app.war /usr/local/tomcat/webapps/ROOT.war
+# IMPORTANT: This must match the name 'app.binary' from your Jenkinsfile
+COPY app.binary /usr/local/tomcat/webapps/ROOT.war
 
+# Port inside the container
 EXPOSE 8080
 
+# Start Tomcat
 CMD ["catalina.sh", "run"]
