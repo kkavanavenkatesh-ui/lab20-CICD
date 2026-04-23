@@ -9,35 +9,36 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Ensure this URL is correct for your repo
                 git "https://github.com/kkavanavenkatesh-ui/lab20-CICD.git"
             }
         }
 
         stage('Build & Test') {
             steps {
-                // Changing to 'package' so it creates the .war file
+                // 'package' is mandatory to create the /target folder
                 bat 'mvn clean package' 
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // This builds the image using the Dockerfile we discussed
+                // The dot '.' is critical; it tells Docker to look in the current folder
                 bat 'docker build -t sample-webapp .'
             }
         }
 
-        stage('Stop & Remove Old Container') {
+        stage('Clean Old Container') {
             steps {
-                // This cleans up old runs so the name and port don't conflict
+                // Stops and deletes the old version so the new one can use the port
                 bat 'docker stop sample-webapp-container || exit 0'
                 bat 'docker rm sample-webapp-container || exit 0'
             }
         }
 
-        stage('Deploy Container') {
+        stage('Deploy') {
             steps {
-                // IMPORTANT: Mapping port 8087 (outside) to 8080 (inside Tomcat)
+                // Map external 8087 to internal 8080
                 bat 'docker run -d -p 8087:8080 --name sample-webapp-container sample-webapp'
             }
         }
@@ -48,7 +49,7 @@ pipeline {
             junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
         }
         success {
-            echo 'App is live! Try: http://localhost:8087/ROOT'
+            echo 'SUCCESS! Wait 20 seconds, then visit http://localhost:8087'
         }
     }
 }
