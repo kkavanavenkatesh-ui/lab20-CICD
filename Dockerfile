@@ -1,14 +1,14 @@
-# Use OpenJDK instead of Tomcat since you have a .jar file
-FROM openjdk:17-jdk-slim
+# Use Eclipse Temurin - the most reliable Java 17 image
+FROM eclipse-temurin:17-jdk-alpine
 
 # Create a working directory
 WORKDIR /app
 
-# Copy the binary created by Jenkins
+# Copy the app.binary (your JAR file) created by the Jenkins build
 COPY app.binary app.jar
 
-# Expose port 8080 (most Spring Boot/Java apps use this by default)
+# Expose port 8080
 EXPOSE 8080
 
-# Run the jar file directly
+# Run the jar directly
 ENTRYPOINT ["java", "-jar", "app.jar"]
