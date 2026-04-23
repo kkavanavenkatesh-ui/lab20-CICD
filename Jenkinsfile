@@ -9,28 +9,30 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Ensure this URL is correct for your repo
                 git "https://github.com/kkavanavenkatesh-ui/lab20-CICD.git"
             }
         }
 
         stage('Build & Test') {
             steps {
-                // 'package' is mandatory to create the /target folder
-                bat 'mvn clean package' 
+                // 1. Compile the code
+                bat 'mvn clean package'
+                
+                // 2. THE FIX: Copy the war file to the current root directory as 'app.war'
+                // This ensures Docker doesn't have to look inside the /target folder
+                bat 'copy target\\*.war app.war'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // The dot '.' is critical; it tells Docker to look in the current folder
+                // Build using the simplified path
                 bat 'docker build -t sample-webapp .'
             }
         }
 
         stage('Clean Old Container') {
             steps {
-                // Stops and deletes the old version so the new one can use the port
                 bat 'docker stop sample-webapp-container || exit 0'
                 bat 'docker rm sample-webapp-container || exit 0'
             }
@@ -38,7 +40,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Map external 8087 to internal 8080
+                // Map external 8087 to internal 8080 (Tomcat default)
                 bat 'docker run -d -p 8087:8080 --name sample-webapp-container sample-webapp'
             }
         }
