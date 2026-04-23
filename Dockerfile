@@ -1,5 +1,4 @@
-FROM tomcat:9-jre17-alpine
-# This copies your built WAR file into the Tomcat webapps folder
+FROM tomcat:9.0-jdk17-openjdk-slim
 COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
