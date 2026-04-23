@@ -1,11 +1,57 @@
-FROM tomcat:9.0-jdk17-openjdk-slim
+pipeline {
+    agent any
 
-# Clean Tomcat's default apps
-RUN rm -rf /usr/local/tomcat/webapps/*
+    tools {
+        jdk 'jdk17'
+        maven 'Maven3'
+    }
 
-# MATCH THIS to what Jenkins created:
-COPY app.binary /usr/local/tomcat/webapps/ROOT.war
+    stages {
+        stage('Checkout') {
+            steps {
+                git "https://github.com/kkavanavenkatesh-ui/lab20-CICD.git"
+            }
+        }
 
-EXPOSE 8080
+        stage('Build & Package') {
+            steps {
+                // Creates the .jar or .war file
+                bat 'mvn clean package -DskipTests'
+                
+                // Finds the file and renames it to app.binary in the root
+                bat 'for /r %%i in (*.war *.jar) do copy /Y "%%i" "app.binary"'
+            }
+        }
 
-CMD ["catalina.sh", "run"]
+        stage('Build Docker Image') {
+            steps {
+                // Builds the image using the Dockerfile in the current directory
+                bat 'docker build -t sample-webapp .'
+            }
+        }
+
+        stage('Clean Old Container') {
+            steps {
+                // Stops and removes the old container to free up port 8087
+                bat 'docker stop sample-webapp-container || exit 0'
+                bat 'docker rm sample-webapp-container || exit 0'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Maps your PC port 8087 to Container port 8080
+                bat 'docker run -d -p 8087:8080 --name sample-webapp-container sample-webapp'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'SUCCESS! Wait 30 seconds for Tomcat to boot, then visit http://localhost:8087'
+        }
+        failure {
+            echo 'Build Failed. Check the Console Output above.'
+        }
+    }
+}
